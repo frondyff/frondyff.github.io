@@ -431,6 +431,79 @@
     .pproject:hover { background: rgba(37,99,235,.25); }
     .pproject.show { opacity: 1; transform: translateY(0); }
 
+    /* ── FEEDBACK WIDGET ── */
+    .feedback-widget {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px;
+      padding: 0 26px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
+      transition: max-height .5s ease, opacity .4s ease, padding .4s ease, margin-top .4s ease;
+    }
+    .feedback-widget.open {
+      max-height: 480px;
+      opacity: 1;
+      padding: 26px;
+      margin-top: 14px;
+    }
+    .feedback-widget h4 { color: white; font-weight: 800; font-size: 16px; margin: 0 0 4px; }
+    .feedback-widget > p { color: rgba(255,255,255,.45); font-size: 13px; margin: 0 0 20px; }
+
+    .reaction-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .reaction-btn {
+      padding: 7px 14px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      color: rgba(255,255,255,.7);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .reaction-btn:hover { background: rgba(37,99,235,.2); border-color: var(--accent2); color: white; }
+    .reaction-btn.picked { background: rgba(37,99,235,.3); border-color: var(--accent2); color: white; }
+
+    .fb-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    @media (max-width: 560px) { .fb-fields { grid-template-columns: 1fr; } }
+    .fb-input {
+      padding: 11px 14px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      color: white;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+      width: 100%;
+    }
+    .fb-input:focus { border-color: var(--accent2); }
+    .fb-input::placeholder { color: rgba(255,255,255,.3); }
+
+    .fb-submit {
+      padding: 11px 28px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+    .fb-submit:hover { background: #1d4ed8; transform: translateY(-2px); }
+    .fb-submit:disabled { background: #334155; cursor: not-allowed; transform: none; }
+
+    .fb-thankyou { display: none; text-align: center; padding: 16px 0; }
+    .fb-thankyou.show { display: block; }
+    .fb-thankyou-icon { font-size: 36px; margin-bottom: 10px; }
+    .fb-thankyou h4 { color: white; font-weight: 800; margin: 0 0 6px; font-size: 17px; }
+    .fb-thankyou p { color: rgba(255,255,255,.45); font-size: 14px; margin: 0; }
+
     /* ── ABOUT / TIMELINE ── */
     .steps { display: grid; gap: 16px; }
     .step {
@@ -698,6 +771,36 @@
     </div>
 
     <div class="persona-result" id="personaResult"></div>
+
+    <div class="feedback-widget" id="feedbackWidget">
+      <h4>Liked what you saw?</h4>
+      <p>Takes 20 seconds — I'll follow up personally.</p>
+
+      <div id="fbForm">
+        <div class="pr-row-label">How did it land?</div>
+        <div class="reaction-row">
+          <button type="button" class="reaction-btn" onclick="pickReaction(this)" data-val="Loved it">😍 Loved it</button>
+          <button type="button" class="reaction-btn" onclick="pickReaction(this)" data-val="Interesting">👍 Interesting</button>
+          <button type="button" class="reaction-btn" onclick="pickReaction(this)" data-val="Need more info">🤔 Need more info</button>
+        </div>
+
+        <form id="fbFormEl" action="https://formspree.io/f/xdaboprp" method="POST">
+          <input type="hidden" name="persona" id="fbPersona" />
+          <input type="hidden" name="reaction" id="fbReaction" value="(not selected)" />
+          <div class="fb-fields">
+            <input class="fb-input" type="text" name="name" placeholder="Your name" required />
+            <input class="fb-input" type="text" name="contact" placeholder="Email or LinkedIn URL" required />
+          </div>
+          <button class="fb-submit" type="submit" id="fbSubmitBtn">Stay in touch →</button>
+        </form>
+      </div>
+
+      <div class="fb-thankyou" id="fbThankyou">
+        <div class="fb-thankyou-icon">🙌</div>
+        <h4>Thanks — I'll reach out soon!</h4>
+        <p>Great meeting you. Check your inbox or LinkedIn.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -929,6 +1032,7 @@
     const key = card.dataset.persona;
     const p = personas[key];
     const result = document.getElementById('personaResult');
+    const widget = document.getElementById('feedbackWidget');
 
     result.innerHTML = `
       <div class="persona-result-header">
@@ -952,7 +1056,43 @@
         setTimeout(() => el.classList.add('show'), i * 60);
       });
     });
+
+    // pre-fill persona, show feedback widget after content settles
+    document.getElementById('fbPersona').value = p.title;
+    setTimeout(() => widget.classList.add('open'), 700);
   }
+
+  function pickReaction(btn) {
+    document.querySelectorAll('.reaction-btn').forEach(b => b.classList.remove('picked'));
+    btn.classList.add('picked');
+    document.getElementById('fbReaction').value = btn.dataset.val;
+  }
+
+  document.getElementById('fbFormEl').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('fbSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    const data = new FormData(e.target);
+    try {
+      const res = await fetch(e.target.action, {
+        method: 'POST',
+        body: data,
+        headers: { 'Accept': 'application/json' },
+      });
+      if (res.ok) {
+        document.getElementById('fbForm').style.display = 'none';
+        document.getElementById('fbThankyou').classList.add('show');
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Try again';
+      }
+    } catch {
+      btn.disabled = false;
+      btn.textContent = 'Try again';
+    }
+  });
 </script>
 </body>
 </html>
