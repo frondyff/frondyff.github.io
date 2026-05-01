@@ -675,10 +675,10 @@
     <p>Click a role below — I'll show you the skills and projects that matter most for your context.</p>
 
     <div class="persona-grid">
-      <div class="persona-card" data-persona="finance" onclick="selectPersona(this)">
-        <span class="persona-icon">📊</span>
-        <span class="persona-title">Finance Lead</span>
-        <span class="persona-desc">Analytics, modeling, market signals</span>
+      <div class="persona-card" data-persona="recruiter" onclick="selectPersona(this)">
+        <span class="persona-icon">🎯</span>
+        <span class="persona-title">Recruiter</span>
+        <span class="persona-desc">Hiring, background, what I bring</span>
       </div>
       <div class="persona-card" data-persona="product" onclick="selectPersona(this)">
         <span class="persona-icon">🚀</span>
@@ -876,16 +876,16 @@
 
   /* ── PERSONA SELECTOR ── */
   const personas = {
-    finance: {
-      icon: '📊',
-      title: 'Finance Lead',
-      sub: 'Analytics & market intelligence',
-      pitch: 'I combine financial data with NLP to surface signals that spreadsheets miss — from earnings call sentiment to KPI dashboards that actually drive decisions.',
-      skills: ['Financial Modeling', 'NLP', 'SQL', 'Data Visualization', 'Python', 'Tableau'],
+    recruiter: {
+      icon: '🎯',
+      title: 'Recruiter',
+      sub: 'Background, skills & what I bring to a team',
+      pitch: 'McGill University student with hands-on experience shipping AI and analytics systems — from LLM pipelines to interactive dashboards. I work fast, communicate clearly, and focus on outcomes over tools.',
+      skills: ['Python', 'SQL', 'LLM APIs', 'NLP', 'Streamlit', 'Data Visualization', 'Git'],
       projects: [
-        { label: 'Financial Text Analytics', href: 'https://github.com/frondyff' },
+        { label: 'Meeting Insight Analyzer', href: 'https://github.com/frondyff' },
         { label: 'Market Mood Analyzer', href: 'https://aapl-mood.streamlit.app/' },
-        { label: 'Business Dashboard', href: 'https://github.com/frondyff' },
+        { label: 'AApp Mood', href: 'https://github.com/frondyff' },
       ],
     },
     product: {
